@@ -25,14 +25,31 @@ class Rules:
         self.states = raw["states"]
         self.verify_hits = []   # (state, key, value, note)
 
-    def get(self, state, key, default_value=None):
-        """Resolve a rule for a state: state override -> NCCI default -> fallback."""
+    def get(self, state, key, default_value=None, on_date=None):
+        """Resolve a rule for a state: state override -> NCCI default -> fallback.
+        Vintaged entries resolve by `on_date` (policy effective date, ISO string):
+        the latest vintage effective on/before that date wins; a date before the
+        earliest known vintage resolves to None and is VERIFY-queued — the
+        engine routes to review rather than applying the wrong policy year."""
         for scope, table in ((state, self.states.get(state, {})), ("default", self.default)):
             if key in table:
                 entry = table[key]
                 if entry.get("provenance") == "verify":
                     self.verify_hits.append((state, key, entry.get("value"),
                                              entry.get("note", "confirm against current tables")))
+                if "vintages" in entry:
+                    vs = sorted(entry["vintages"], key=lambda v: v["effective"])
+                    if on_date is None:
+                        return vs[-1]["value"], entry
+                    chosen = None
+                    for v in vs:
+                        if v["effective"] <= on_date:
+                            chosen = v
+                    if chosen is None:
+                        self.verify_hits.append((state, key, None,
+                                                 f"no vintage on/before {on_date}; earliest known is {vs[0]['effective']}"))
+                        return None, entry
+                    return chosen["value"], entry
                 return entry.get("value"), entry
         return default_value, None
 
@@ -51,6 +68,13 @@ def audit(case, register, gl, rules):
 
     rates = case["policy"]["class_rates_per_100"]
     gov_class = case["policy"]["governing_class"]
+
+    # policy effective date drives vintage resolution (officer tables etc. turn
+    # over on per-state policy-year cycles). Fallback: expiration minus one year.
+    eff_date = case["policy"].get("effective_date")
+    if not eff_date:
+        exp_d = date.fromisoformat(case["policy"]["expiration_date"])
+        eff_date = exp_d.replace(year=exp_d.year - 1).isoformat()
 
     # ---- guard: monopolistic states ----
     in_scope = []
@@ -135,59 +159,89 @@ def audit(case, register, gl, rules):
                 "Deny exclusion; notify insured of record-keeping requirement.",
                 ot * rates[cls] / 100, "NCCI record-keeping requirement (sourced)", subject=e["employee"])
 
-    # ---- check 3: officer min/max + sole proprietor basis, state-resolved ----
+    # ---- check 3: officer min/max + sole proprietor basis, state- and date-resolved ----
     weeks = case.get("weeks_in_period", 13)
+
+    def officer_band(st):
+        """Resolve the officer payroll band for a state at the policy effective
+        date. States publish weekly OR annual values; both normalize to the
+        audit period. Returns (floor, cap, provenance) — None where unresolved."""
+        cap = floor = None
+        prov = "?"
+        v, entry = rules.get(st, "officer_annual_max", None, on_date=eff_date)
+        if v is not None:
+            cap = v * weeks / 52.0
+            prov = (entry or {}).get("provenance", "?")
+        else:
+            v, entry = rules.get(st, "officer_weekly_max", None, on_date=eff_date)
+            if v is not None:
+                cap = v * weeks
+                prov = (entry or {}).get("provenance", "?")
+        v, entry = rules.get(st, "officer_annual_min", None, on_date=eff_date)
+        if v is not None:
+            floor = v * weeks / 52.0
+        else:
+            v, entry = rules.get(st, "officer_weekly_min", None, on_date=eff_date)
+            if v is not None:
+                floor = v * weeks
+        return floor, cap, prov
+
+    def apply_band(e, prefix, label):
+        st, gross = e["state"], float(e["gross_wages"])
+        floor, cap, prov = officer_band(st)
+        if cap is None:
+            add(f"{prefix}-VERIFY-{st}", "review", st,
+                f"{label.capitalize()} {e['employee']} in {st}: payroll band not resolved for policy effective {eff_date} — table missing or no vintage covers that date; route to reviewer.",
+                f"register gross={money(gross)}",
+                f"Load the {st} table vintage covering {eff_date}, then re-run.",
+                0.0, f"{st} {label} band (unresolved for {eff_date})", subject=e["employee"])
+            return
+        if gross > cap:
+            over = gross - cap
+            add(f"{prefix}-{st}-CAP", "medium", st,
+                f"{label.capitalize()} {e['employee']} payroll {money(gross)} exceeds the {st} maximum {money(cap)} for the period — {money(over)} excluded.",
+                f"register vs {st} table (policy eff {eff_date})",
+                f"Cap auditable payroll at {money(cap)}.",
+                -over * rates[e["class_code"]] / 100,
+                f"{st} {label} max ({prov}, vintage-resolved)", subject=e["employee"])
+        elif floor is not None and gross < floor:
+            under = floor - gross
+            add(f"{prefix}-{st}-MIN", "medium", st,
+                f"{label.capitalize()} {e['employee']} payroll {money(gross)} is below the {st} minimum {money(floor)} for the period — raise auditable payroll by {money(under)}.",
+                f"register vs {st} table (policy eff {eff_date})",
+                f"Charge payroll at the {st} minimum {money(floor)}.",
+                under * rates[e["class_code"]] / 100,
+                f"{st} {label} min ({prov}, vintage-resolved)", subject=e["employee"])
+
     for e in in_scope:
         role = e.get("entity_role", "employee")
         st, gross = e["state"], float(e["gross_wages"])
         if role in ("sole_prop", "partner"):
-            basis, entry = rules.get(st, "sole_prop_annual_basis")
+            band, _ = rules.get(st, "sole_prop_uses_officer_band", False)
+            if band:
+                apply_band(e, "SOLEPROP", f"covered {role.replace('_', ' ')}")
+                continue
+            basis, entry = rules.get(st, "sole_prop_annual_basis", None, on_date=eff_date)
             if basis is None:
                 add(f"SOLEPROP-VERIFY-{st}", "review", st,
-                    f"{e['employee']} is a covered {role.replace('_', ' ')} in {st}, where the flat payroll basis is not confirmed in the rules library — route to reviewer.",
+                    f"{e['employee']} is a covered {role.replace('_', ' ')} in {st}, where the payroll basis is not confirmed (or no vintage covers policy eff {eff_date}) — route to reviewer.",
                     f"register gross={money(gross)}",
                     f"Load the current {st} sole proprietor/partner basis, then re-run.",
-                    0.0, f"{st} sole-prop basis (verify)", subject=e["employee"])
+                    0.0, f"{st} sole-prop basis (unresolved)", subject=e["employee"])
             else:
                 period_basis = basis * weeks / 52.0
                 delta = period_basis - gross
                 if abs(delta) > 1.0:
                     add(f"SOLEPROP-{st}-BASIS", "medium", st,
                         f"{e['employee']} ({role.replace('_', ' ')}, covered by election): reported {money(gross)} but {st} rates covered {role.replace('_', ' ')}s at a flat basis of {money(period_basis)} — {'add' if delta > 0 else 'reduce by'} {money(abs(delta))}.",
-                        f"register vs {st} flat basis ({(entry or {}).get('provenance', '?')})",
+                        f"register vs {st} flat basis ({(entry or {}).get('provenance', '?')}, vintage-resolved)",
                         f"Set auditable payroll to the flat basis {money(period_basis)}.",
                         delta * rates[e["class_code"]] / 100,
                         f"{st} sole-prop/partner flat basis ({(entry or {}).get('provenance', '?')})", subject=e["employee"])
             continue
         if e["is_officer"] != "Y":
             continue
-        wmax, entry = rules.get(st, "officer_weekly_max")
-        wmin, entry_min = rules.get(st, "officer_weekly_min")
-        if wmax is None:
-            add(f"OFFICER-VERIFY-{st}", "review", st,
-                f"Officer {e['employee']} in {st}: officer min/max not confirmed in rules library — route to reviewer with current state table.",
-                f"register gross={money(gross)}",
-                f"Load the current {st} officer payroll table, then re-run.",
-                0.0, f"{st} officer table (verify)", subject=e["employee"])
-            continue
-        cap = wmax * weeks
-        if gross > cap:
-            over = gross - cap
-            add(f"OFFICER-{st}-CAP", "medium", st,
-                f"Officer {e['employee']} payroll {money(gross)} exceeds the {st} maximum {money(cap)} ({money(wmax)}/wk x {weeks} wks) — {money(over)} excluded.",
-                f"register vs {st} officer table",
-                f"Cap auditable officer payroll at {money(cap)}.",
-                -over * rates[e["class_code"]] / 100,
-                f"{st} officer max {money(wmax)}/wk ({(entry or {}).get('provenance', '?')})", subject=e["employee"])
-        elif wmin is not None and gross < wmin * weeks:
-            floor = wmin * weeks
-            under = floor - gross
-            add(f"OFFICER-{st}-MIN", "medium", st,
-                f"Officer {e['employee']} payroll {money(gross)} is below the {st} minimum {money(floor)} ({money(wmin)}/wk x {weeks} wks) — raise auditable payroll by {money(under)}.",
-                f"register vs {st} officer table",
-                f"Charge officer payroll at the {st} minimum {money(floor)}.",
-                under * rates[e["class_code"]] / 100,
-                f"{st} officer min {money(wmin)}/wk ({(entry_min or {}).get('provenance', '?')})", subject=e["employee"])
+        apply_band(e, "OFFICER", "officer")
 
     # ---- check 4: uninsured subcontractors, materials fraction state-resolved ----
     for row in gl:

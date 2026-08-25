@@ -72,6 +72,7 @@ with open(os.path.join(OUT, "gl_export.csv"), "w", newline="") as f:
 with open(os.path.join(OUT, "policy_dec.json"), "w") as f:
     json.dump({
         "insured": "BlueRidge Mechanical Contractors Inc (fictional)",
+        "effective_date": "2025-02-01",
         "expiration_date": "2026-02-01",
         "estimated_annual_premium": 26500,
         "governing_class": "5537",
@@ -98,7 +99,7 @@ with open(os.path.join(OUT, "ground_truth.json"), "w") as f:
         "expected_findings": [
             "MONO-WA", "TRIANGLE-941",
             "OT-STATE-PA-R.Novak", "OT-RECORDS-TX-D.Ruiz", "OT-VERIFY-NJ-S.Adeyemi",
-            "OFFICER-NY-CAP", "OFFICER-VERIFY-FL",
+            "OFFICER-VERIFY-NY", "OFFICER-VERIFY-FL",
             "SUB-NOCOI-NJ", "SUB-NOCOI-PA",
             "AUDITTYPE-FL", "AUDITTYPE-NJ", "AUDITTYPE-NY", "AUDITTYPE-PA", "AUDITTYPE-TX",
             "DEADLINE-NY", "ANC-NA-TX",

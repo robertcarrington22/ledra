@@ -8,8 +8,11 @@ Seeded conditions the engine must catch (see expected_findings in case.json):
   - PA employee claims OT exclusion WITH proper records -> denied by STATE rule
   - TX employee claims OT exclusion without per-employee breakout -> denied on records
   - NJ employee claims OT exclusion -> routed to human review (state rule unconfirmed)
-  - NY officer exceeds the sourced 2026 NY max ($3,400/wk) -> capped
-  - FL officer present but FL table unconfirmed -> routed to review
+  - NY officer on a policy effective 2025-02-01 -> BEFORE the earliest known
+    NYCIRB vintage (10/1/2025), so the band is unresolved -> routed to review
+    (vintage discipline: never apply the wrong policy year's table)
+  - FL officer, same effective date -> before the known 1/1/2026 FL vintage ->
+    routed to review
   - WA employee -> monopolistic-state exclusion
   - NJ subcontractor paid $52,300 with no COI -> full charge
   - PA subcontractor no COI but materials documented -> fractional charge (verify)
@@ -57,6 +60,7 @@ case = {
     "weeks_in_period": 52,
     "policy": {
         "insured": "BlueRidge Mechanical Contractors Inc (fictional)",
+        "effective_date": "2025-02-01",
         "expiration_date": "2026-02-01",
         "estimated_annual_premium": 26500,
         "governing_class": "5537",
@@ -72,7 +76,7 @@ case = {
         "OT-STATE-PA-R.Novak",
         "OT-RECORDS-TX-D.Ruiz",
         "OT-VERIFY-NJ-S.Adeyemi",
-        "OFFICER-NY-CAP",
+        "OFFICER-VERIFY-NY",
         "OFFICER-VERIFY-FL",
         "SUB-NOCOI-NJ",
         "SUB-NOCOI-PA",

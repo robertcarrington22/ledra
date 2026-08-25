@@ -227,8 +227,9 @@ def extract_case(docs_dir, out_dir):
     case = {
         "period": policy["period"], "as_of_date": policy["as_of_date"],
         "weeks_in_period": policy["weeks_in_period"],
-        "policy": {k: policy[k] for k in ("insured", "expiration_date", "estimated_annual_premium",
-                                          "governing_class", "class_rates_per_100")},
+        "policy": {k: policy[k] for k in ("insured", "effective_date", "expiration_date",
+                                          "estimated_annual_premium", "governing_class",
+                                          "class_rates_per_100") if k in policy},
         "form_941": f941, "suta_total_wages": suta,
         "insured_noncompliant": policy["insured_noncompliant"],
         "contact_attempts_documented": policy["contact_attempts_documented"],

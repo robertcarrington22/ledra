@@ -28,9 +28,9 @@ from audit_engine import Rules, audit
 from extract.extractors import (ExtractionError, Vault, adapt_adp, adapt_941, detect_format)
 from extract.payroll_api.providers import ConsentError, ConsentRecord
 
-POLICY = {"insured": "Edge Case Co (fictional)", "expiration_date": "2026-06-30",
-          "estimated_annual_premium": 9000, "governing_class": "5537",
-          "class_rates_per_100": {"5537": 9.44, "8810": 0.28}}
+POLICY = {"insured": "Edge Case Co (fictional)", "effective_date": "2025-10-15",
+          "expiration_date": "2026-06-30", "estimated_annual_premium": 9000,
+          "governing_class": "5537", "class_rates_per_100": {"5537": 9.44, "8810": 0.28}}
 
 def case(**over):
     c = {"policy": POLICY, "form_941": {"line2_wages_tips_comp": 0.0}, "suta_total_wages": 0.0,
@@ -60,19 +60,26 @@ def run_case(register, f941=None, gl=None, **over):
     c["suta_total_wages"] = c["form_941"]["line2_wages_tips_comp"]
     return audit(c, register, gl or [], Rules())
 
-# R1: NY officer below minimum (floor = 1700*52 = 88,400)
-f = run_case([emp("O. Underwood", "NY", cls="8810", gross=60000.0, officer="Y")])
+# R1: NY officer below the REAL vintage-resolved minimum
+# (policy eff 2025-10-15 -> NYCIRB 10/1/2025 vintage: $975/wk -> floor $50,700)
+f = run_case([emp("O. Underwood", "NY", cls="8810", gross=30000.0, officer="Y")])
 check("R1 officer below NY minimum raised to floor", "OFFICER-NY-MIN" in ids(f))
 r1 = next(x for x in f if x["id"] == "OFFICER-NY-MIN")
-check("R1 impact = (88,400-60,000) * 0.28%", abs(r1["premium_impact"] - (88400 - 60000) * 0.28 / 100) < 0.01)
+check("R1 impact = (50,700-30,000) * 0.28% (real NYCIRB vintage)",
+      abs(r1["premium_impact"] - (50700 - 30000) * 0.28 / 100) < 0.01)
 
-# R2: NY sole proprietor at sourced flat basis ($89,200)
+# R2: NY sole proprietor — real rule: same weekly band as officers (no flat basis)
 f = run_case([emp("S. Solo", "NY", gross=40000.0, role="sole_prop")])
-check("R2 NY sole prop adjusted to flat basis", "SOLEPROP-NY-BASIS" in ids(f))
+check("R2 NY sole prop floored via officer band", "SOLEPROP-NY-MIN" in ids(f))
 
-# R3: FL sole proprietor -> basis unconfirmed -> review
-f = run_case([emp("S. Palm", "FL", gross=40000.0, role="sole_prop")])
-check("R3 FL sole prop routes to review", "SOLEPROP-VERIFY-FL" in ids(f))
+# R2b: vintage discipline — policy effective BEFORE the earliest NY vintage -> review
+early = run_case([emp("O. Early", "NY", cls="8810", gross=30000.0, officer="Y")],
+                 policy={**POLICY, "effective_date": "2025-02-01"})
+check("R2b pre-vintage policy routes officer to review", "OFFICER-VERIFY-NY" in ids(early))
+
+# R3: sole proprietor in a state with no basis in the library -> review
+f = run_case([emp("S. Palm", "MA", gross=40000.0, role="sole_prop")])
+check("R3 unknown-state sole prop routes to review", "SOLEPROP-VERIFY-MA" in ids(f))
 
 # R4: register exceeds 941 -> review, no auto-charge
 f = run_case([emp("A. One", "FL", gross=100000.0)], f941=90000.0)

@@ -17,9 +17,18 @@ problems, sourced, verify = [], 0, 0
 def check_table(scope, table):
     global sourced, verify
     for key, entry in table.items():
-        if not isinstance(entry, dict) or "value" not in entry or "provenance" not in entry:
-            problems.append(f"{scope}.{key}: entry must be {{value, provenance, ...}}")
+        if not isinstance(entry, dict) or "provenance" not in entry \
+                or ("value" not in entry and "vintages" not in entry):
+            problems.append(f"{scope}.{key}: entry must be {{value|vintages, provenance, ...}}")
             continue
+        if "vintages" in entry:
+            vs = entry["vintages"]
+            if not vs or any("effective" not in v or "value" not in v for v in vs):
+                problems.append(f"{scope}.{key}: each vintage needs {{effective, value}}")
+            if [v["effective"] for v in vs] != sorted(v["effective"] for v in vs):
+                problems.append(f"{scope}.{key}: vintages must be in ascending effective order")
+            if "unit" not in entry:
+                problems.append(f"{scope}.{key}: vintaged entry must declare its unit (weekly/annual)")
         prov = entry["provenance"]
         if prov == "sourced":
             sourced += 1

@@ -1,18 +1,19 @@
 {
   "_meta": {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "compiled": "2026-08-25",
-    "provenance_policy": "Every value carries provenance: 'sourced' (citation attached) or 'verify' (structural placeholder — must be confirmed against the current bureau/state tables before production use). The engine refuses to silently apply 'verify' values: it applies them and emits a VERIFY finding so no unconfirmed number hides in a worksheet.",
-    "scope": "Workers' compensation premium audit rules. GL audit rules land in v2."
+    "provenance_policy": "Every value carries provenance: 'sourced' (citation attached; bureau/primary or corroborated carrier source) or 'verify' (value present but resting on a secondary source or unconfirmed pairing — the engine applies it and surfaces it in the VERIFY queue). Values that change by policy year are stored as 'vintages' resolved by POLICY EFFECTIVE DATE; a policy effective before the earliest known vintage resolves to none and routes to human review.",
+    "scope": "Workers' compensation premium audit rules. GL audit rules land in v2.",
+    "changelog": "2.0.0: real officer/sole-prop tables for 10 states from Aug 25 2026 research (NYCIRB RC 2659, WCIRB regulatory filings, PCRB Quick Reference/Circular 1813, NJCRIB via PIA, WCRB misc values, FSIGA, TDI/Texas Mutual, ICW Group carrier chart for DE/IL/GA pending bureau-direct confirmation). CORRECTION: prior NY values ($1,700/$3,400 wk, $89,200 flat) were refuted by NYCIRB RC 2659 and replaced."
   },
   "default_ncci": {
     "bureau": {"value": "NCCI", "provenance": "sourced", "source": "https://www.ncci.com"},
-    "class_system": {"value": "ncci", "provenance": "sourced"},
+    "class_system": {"value": "ncci", "provenance": "sourced", "source": "NCCI Basic Manual classification system, https://www.ncci.com"},
     "ot_premium_excludable": {"value": true, "provenance": "sourced", "source": "NCCI Basic Manual: excess (premium) portion of overtime excludable with per-employee records"},
     "ot_requires_employee_breakout": {"value": true, "provenance": "sourced", "source": "NCCI Basic Manual record-keeping requirement"},
     "officer_weekly_min": {"value": null, "provenance": "verify", "note": "State-specific annual table — load per state"},
     "officer_weekly_max": {"value": null, "provenance": "verify", "note": "State-specific annual table — load per state"},
-    "sole_prop_annual_basis": {"value": null, "provenance": "verify"},
+    "sole_prop_annual_basis": {"value": null, "provenance": "verify", "note": "State-specific: flat basis, officer band, or no coverage election — load per state"},
     "physical_audit_annual_at": {"value": 20000, "provenance": "sourced", "source": "https://www.sfmic.com/assigned-risk/preparing-for-your-premium-audit/ (NCCI assigned-risk: >=20K annual physical)"},
     "physical_audit_every3yr_between": {"value": [10000, 20000], "provenance": "sourced", "source": "same — physical at least once every 3 years in this band"},
     "audit_deadline_days": {"value": null, "provenance": "sourced", "note": "No general NCCI deadline; state-specific where set"},
@@ -20,63 +21,88 @@
     "anc_max_multiplier": {"value": 2.0, "provenance": "sourced", "source": "ANC up to 2x estimated annual premium"},
     "anc_required_contact_attempts": {"value": 2, "provenance": "sourced", "source": "ANC requires two documented attempts"},
     "uninsured_sub_full_charge": {"value": true, "provenance": "sourced", "source": "Payments to uninsured subs chargeable as payroll absent valid COI"},
-    "uninsured_sub_materials_fraction": {"value": 0.5, "provenance": "verify", "note": "Labor-portion reduction when materials documented varies by state (commonly 50-90%); confirm per state"},
-    "monopolistic": {"value": false, "provenance": "sourced"}
+    "uninsured_sub_materials_fraction": {"value": 0.5, "provenance": "verify", "note": "Labor-portion reduction when materials documented varies by state (commonly 50-90%); confirm per state — research in flight"},
+    "monopolistic": {"value": false, "provenance": "sourced", "source": "Only OH/WA/WY/ND are monopolistic state funds"}
   },
   "states": {
     "NY": {
       "bureau": {"value": "NYCIRB", "provenance": "sourced", "source": "https://www.nycirb.org"},
-      "class_system": {"value": "nycirb", "provenance": "sourced"},
-      "officer_weekly_min": {"value": 1700, "provenance": "sourced", "source": "NY 2026 officer minimum $1,700/wk (moved from $1,650)"},
-      "officer_weekly_max": {"value": 3400, "provenance": "sourced", "source": "NY 2026 officer maximum $3,400/wk (moved from $3,300)"},
-      "sole_prop_annual_basis": {"value": 89200, "provenance": "sourced", "source": "NY 2026 sole proprietor/partner flat basis $89,200"},
+      "class_system": {"value": "nycirb", "provenance": "sourced", "source": "NYCIRB manual classification system, https://www.nycirb.org"},
+      "officer_weekly_min": {"vintages": [{"effective": "2025-10-01", "value": 975}, {"effective": "2026-10-01", "value": 1025}], "unit": "weekly", "provenance": "sourced", "source": "NYCIRB Bulletin R.C. 2659 (Jul 15, 2026) Misc Values, https://www.nycirb.org/bulletins/rc2659.pdf"},
+      "officer_weekly_max": {"vintages": [{"effective": "2025-10-01", "value": 2950}, {"effective": "2026-10-01", "value": 3100}], "unit": "weekly", "provenance": "sourced", "source": "NYCIRB R.C. 2659 — non-construction; construction employments capped separately at $1,922.25/wk eff 7/1/2026 (payroll limitation law, July 1 cycle)", "note": "Two cycles in one state: Oct 1 rate revision + Jul 1 construction limitation. CORRECTED 8/25/2026: prior $1,700/$3,400 values refuted by primary source."},
+      "sole_prop_uses_officer_band": {"value": true, "provenance": "sourced", "source": "NYCIRB R.C. 2659: sole proprietors/partners (non-construction) use the same weekly min/max band as officers — no flat annual basis exists", "note": "CORRECTED 8/25/2026: prior $89,200 flat basis refuted"},
       "audit_required_at_premium": {"value": 5000, "provenance": "sourced", "source": "NYCIRB Manual Rule VI: annual audit required at >=$5,000 premium"},
       "physical_audit_rule": {"value": "first_year_then_every_3", "provenance": "sourced", "source": "NYCIRB Rule VI; RC 2516 permits remote completion of the records examination"},
       "audit_deadline_days": {"value": 180, "provenance": "sourced", "source": "NY DFS OGC 03-04-12: audits within 180 days of policy expiration"}
     },
     "CA": {
       "bureau": {"value": "WCIRB", "provenance": "sourced", "source": "https://www.wcirb.com"},
-      "class_system": {"value": "wcirb_usrp", "provenance": "sourced", "note": "California classification system differs materially from NCCI"},
-      "physical_audit_annual_at": {"value": 13000, "provenance": "verify", "note": "USRP annual physical-audit threshold — research surfaced both ~$10.5K and $13K; confirm current USRP Part 3 Section VI value before use"},
-      "test_audit_program": {"value": "WCIRB PAAP", "provenance": "sourced", "source": "https://www.wcirb.com/products-and-services/data-reporting/wcirb-premium-audit-accuracy-program", "note": "Worksheets must be re-performable by a WCIRB examiner; insurers fined for vendor error patterns"},
-      "officer_weekly_min": {"value": null, "provenance": "verify"},
-      "officer_weekly_max": {"value": null, "provenance": "verify"}
-    },
-    "PA": {
-      "bureau": {"value": "PCRB", "provenance": "sourced"},
-      "class_system": {"value": "pcrb", "provenance": "sourced"},
-      "ot_premium_excludable": {"value": false, "provenance": "sourced", "source": "PA does not permit the overtime premium-pay exclusion"},
-      "officer_weekly_min": {"value": null, "provenance": "verify"},
-      "officer_weekly_max": {"value": null, "provenance": "verify"}
-    },
-    "DE": {
-      "bureau": {"value": "DCRB", "provenance": "sourced"},
-      "class_system": {"value": "dcrb", "provenance": "sourced"},
-      "ot_premium_excludable": {"value": false, "provenance": "sourced", "source": "DE does not permit the overtime premium-pay exclusion"}
-    },
-    "NJ": {
-      "bureau": {"value": "NJCRIB", "provenance": "sourced"},
-      "class_system": {"value": "njcrib", "provenance": "sourced"},
-      "ot_premium_excludable": {"value": null, "provenance": "verify", "note": "NJ overtime treatment differs from NCCI — confirm against NJCRIB manual before applying any exclusion"}
-    },
-    "TX": {
-      "bureau": {"value": "NCCI", "provenance": "sourced", "note": "NCCI state; non-subscription permitted"},
-      "anc_applies": {"value": false, "provenance": "sourced", "source": "NCCI Item B-1429 not adopted in TX"},
-      "officer_weekly_min": {"value": null, "provenance": "verify"},
-      "officer_weekly_max": {"value": null, "provenance": "verify"}
-    },
-    "WI": {
-      "bureau": {"value": "WCRB-WI", "provenance": "sourced"},
-      "anc_max_multiplier": {"value": 2.0, "provenance": "sourced", "source": "WI applies a flat 2x ANC"}
+      "class_system": {"value": "wcirb_usrp", "provenance": "sourced", "source": "WCIRB USRP — California classification system differs materially from NCCI"},
+      "officer_annual_min": {"vintages": [{"effective": "2025-09-01", "value": 63700}, {"effective": "2026-09-01", "value": 66300}], "unit": "annual", "provenance": "sourced", "source": "WCIRB 9/1/2025 and 9/1/2026 regulatory filings; https://www.wcirb.com/research-and-education/online-guide-workers%E2%80%99-compensation/standard-classification-system/executive-officers-and-partners"},
+      "officer_annual_max": {"vintages": [{"effective": "2025-09-01", "value": 165100}, {"effective": "2026-09-01", "value": 171600}], "unit": "annual", "provenance": "sourced", "source": "WCIRB regulatory filings (Sept 1 policy-year cycle)"},
+      "sole_prop_uses_officer_band": {"value": true, "provenance": "sourced", "source": "WCIRB: same annual min/max applies to partners, individual employers, and working LLC members"},
+      "physical_audit_annual_at": {"value": 13000, "provenance": "verify", "note": "USRP Part 3 Sec VI Rule 4 annual physical-audit threshold — research surfaced ~$10.5K and $13K; confirmation research in flight"},
+      "test_audit_program": {"value": "WCIRB PAAP", "provenance": "sourced", "source": "https://www.wcirb.com/products-and-services/data-reporting/wcirb-premium-audit-accuracy-program", "note": "Worksheets must be re-performable by a WCIRB examiner; insurers fined for vendor error patterns"}
     },
     "FL": {
-      "bureau": {"value": "NCCI", "provenance": "sourced"},
-      "officer_weekly_min": {"value": null, "provenance": "verify"},
-      "officer_weekly_max": {"value": null, "provenance": "verify"}
+      "bureau": {"value": "NCCI", "provenance": "sourced", "source": "NCCI state; FL DFS approves rate filings"},
+      "officer_annual_min": {"vintages": [{"effective": "2026-01-01", "value": 67600}], "unit": "annual", "provenance": "sourced", "source": "FSIGA Executive Officer Payroll Limitation flyer (NCCI filing approved by FL DFS), https://fsiga.org/download/forms_and_documents/Flyer-ExecutiveOfficerLimitation.pdf", "note": "Construction officers: statutory half-minimum $33,800 — construction split not yet modeled"},
+      "officer_annual_max": {"vintages": [{"effective": "2026-01-01", "value": 202800}], "unit": "annual", "provenance": "sourced", "source": "FSIGA flyer: $3,900/wk eff 1/1/2026 ($3,800 in 2025). Beware stale agency blogs citing $156,000 — refuted.", "note": "2025 vintage ($3,800/wk) known but 2025 minimum unconfirmed; add both when confirmed"},
+      "sole_prop_annual_basis": {"vintages": [{"effective": "2026-01-01", "value": 67300}], "unit": "annual", "provenance": "verify", "note": "Electing sole props/partners flat basis — ICW Group carrier chart (3/11/2026) only; NCCI misc values paywalled. Confirm bureau-direct."}
+    },
+    "TX": {
+      "bureau": {"value": "TDI", "provenance": "sourced", "source": "Texas Basic Manual is TDI-regulated; NCCI is statistical agent only. https://www.tdi.texas.gov/wc/regulation/"},
+      "anc_applies": {"value": false, "provenance": "sourced", "source": "NCCI Item B-1429 not adopted in TX"},
+      "officer_annual_min": {"value": 7800, "provenance": "sourced", "source": "TDI Texas Basic Manual — static for many years", "note": "Static values; verify only if TDI amends the manual"},
+      "officer_annual_max": {"value": 62400, "provenance": "sourced", "source": "TDI Texas Basic Manual — static for many years"},
+      "sole_prop_annual_basis": {"vintages": [{"effective": "2024-10-01", "value": 79200}, {"effective": "2025-10-01", "value": 82600}], "unit": "annual", "provenance": "sourced", "source": "SAWW x 1.25 x 52, resets each Oct 1; Texas Mutual DWC updates: https://www.texasmutual.com/blog/posts/2025/10/dwc-update-2026-average-weekly-wage", "note": "10/1/2026 value UNCONFIRMED until DWC publishes"}
+    },
+    "PA": {
+      "bureau": {"value": "PCRB", "provenance": "sourced", "source": "https://www.pcrb.com"},
+      "class_system": {"value": "pcrb", "provenance": "sourced", "source": "PCRB independent classification system"},
+      "ot_premium_excludable": {"value": false, "provenance": "sourced", "source": "PA does not permit the overtime premium-pay exclusion"},
+      "officer_weekly_min": {"vintages": [{"effective": "2025-04-01", "value": 1325}, {"effective": "2026-04-01", "value": 1347}], "unit": "weekly", "provenance": "sourced", "source": "PCRB Quick Reference, http://www.pcrb.com/industry-resources/rating-values/quick-reference/"},
+      "officer_weekly_max": {"vintages": [{"effective": "2025-04-01", "value": 5300}, {"effective": "2026-04-01", "value": 5400}], "unit": "weekly", "provenance": "sourced", "source": "PCRB Quick Reference; Circular 1813 (Filing No. 344) raised the max multiplier 2.5x->4x SAWW for policies eff 4/1/2025+ — a step-change: pre-4/1/2025 policies had a $3,200/wk cap", "note": "Do not smooth over the 2025 step-change when adding older vintages"},
+      "sole_prop_annual_basis": {"value": null, "provenance": "verify", "note": "Individuals/partners not on payroll: min $70,044/yr, capped at officer max (ICW chart) — band-with-own-floor shape not yet modeled; route to review"}
+    },
+    "DE": {
+      "bureau": {"value": "DCRB", "provenance": "sourced", "source": "https://www.dcrb.com"},
+      "class_system": {"value": "dcrb", "provenance": "sourced", "source": "DCRB independent classification system"},
+      "ot_premium_excludable": {"value": false, "provenance": "sourced", "source": "DE does not permit the overtime premium-pay exclusion"},
+      "officer_annual_min": {"vintages": [{"effective": "2025-12-01", "value": 72072}], "unit": "annual", "provenance": "verify", "note": "ICW Group carrier chart (3/11/2026); confirm against DCRB Quick Reference Excel, https://dcrb.com/rating-values-list/"},
+      "officer_annual_max": {"vintages": [{"effective": "2025-12-01", "value": 288600}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart; confirm DCRB-direct"},
+      "sole_prop_uses_officer_band": {"value": true, "provenance": "verify", "note": "Individuals/partners not on payroll: min $72,072 / max $288,600 per ICW chart — same band as officers; confirm DCRB-direct"}
+    },
+    "NJ": {
+      "bureau": {"value": "NJCRIB", "provenance": "sourced", "source": "https://www.njcrib.com"},
+      "class_system": {"value": "njcrib", "provenance": "sourced", "source": "NJCRIB independent classification system"},
+      "ot_premium_excludable": {"value": null, "provenance": "verify", "note": "NJ overtime treatment differs from NCCI — confirmation research in flight; route exclusions to reviewer"},
+      "officer_weekly_min": {"vintages": [{"effective": "2025-01-01", "value": 830}, {"effective": "2026-01-01", "value": 860}], "unit": "weekly", "provenance": "sourced", "source": "NJCRIB circular via PIA Northeast: https://blog.pia.org/2025/11/03/n-j-2026-wc-overall-rate-level-decreases-4-3/ (calendar-year cycle)"},
+      "officer_weekly_max": {"vintages": [{"effective": "2025-01-01", "value": 3320}, {"effective": "2026-01-01", "value": 3430}], "unit": "weekly", "provenance": "sourced", "source": "NJCRIB circular via PIA Northeast; corroborated by ICW chart"},
+      "sole_prop_uses_officer_band": {"value": true, "provenance": "sourced", "source": "NJCRIB: one unified min/max basis for officers, individual proprietors, partners, and LLC members"}
+    },
+    "WI": {
+      "bureau": {"value": "WCRB-WI", "provenance": "sourced", "source": "https://www.wcrb.org"},
+      "anc_max_multiplier": {"value": 2.0, "provenance": "sourced", "source": "WI applies a flat 2x ANC"},
+      "officer_weekly_min": {"vintages": [{"effective": "2025-10-01", "value": 398}], "unit": "weekly", "provenance": "sourced", "source": "WCRB Miscellaneous Values Table, https://www.wcrb.org/misc/misc-values-table.aspx", "note": "2026 table shows $413/wk but the exact 10/1/2026 pairing is unconfirmed — add that vintage after confirming"},
+      "officer_weekly_max": {"vintages": [{"effective": "2025-10-01", "value": 1989}], "unit": "weekly", "provenance": "sourced", "source": "WCRB Misc Values Table — WI's officer cap is uniquely low (~$103K/yr); do NOT sanity-correct it upward", "note": "2026 table shows $2,063/wk; add after confirming the effective pairing"},
+      "sole_prop_annual_basis": {"vintages": [{"effective": "2025-10-01", "value": 68952}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart; WCRB 2026 table shows $71,500 — confirm pairing before adding"}
+    },
+    "IL": {
+      "bureau": {"value": "NCCI", "provenance": "sourced", "source": "NCCI state, https://www.ncci.com/Articles/Documents/RM_State_Instructions_IL.pdf"},
+      "officer_annual_min": {"vintages": [{"effective": "2026-01-01", "value": 75400}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart ($1,450/wk); NCCI misc values paywalled — confirm bureau-direct"},
+      "officer_annual_max": {"vintages": [{"effective": "2026-01-01", "value": 301600}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart ($5,800/wk); confirm bureau-direct"},
+      "sole_prop_annual_basis": {"vintages": [{"effective": "2026-01-01", "value": 75500}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart; confirm bureau-direct"}
+    },
+    "GA": {
+      "bureau": {"value": "NCCI", "provenance": "sourced", "source": "NCCI state (Mar 1 policy-year cycle), https://www.ncci.com/Articles/Documents/II_StateAdvisoryForumState_GA_2025.pdf"},
+      "officer_annual_min": {"vintages": [{"effective": "2026-03-01", "value": 72800}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart ($1,400/wk); confirm bureau-direct"},
+      "officer_annual_max": {"vintages": [{"effective": "2026-03-01", "value": 286000}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart ($5,500/wk); confirm bureau-direct"},
+      "sole_prop_annual_basis": {"vintages": [{"effective": "2026-03-01", "value": 71600}], "unit": "annual", "provenance": "verify", "note": "ICW carrier chart; confirm bureau-direct"}
     },
     "OH": {"monopolistic": {"value": true, "provenance": "sourced", "source": "Ohio BWC — private carriers do not write WC; out of audit scope"}},
     "WA": {"monopolistic": {"value": true, "provenance": "sourced", "source": "WA L&I — monopolistic; out of audit scope"}},
-    "WY": {"monopolistic": {"value": true, "provenance": "sourced"}},
-    "ND": {"monopolistic": {"value": true, "provenance": "sourced"}}
+    "WY": {"monopolistic": {"value": true, "provenance": "sourced", "source": "WY state fund — monopolistic; out of audit scope"}},
+    "ND": {"monopolistic": {"value": true, "provenance": "sourced", "source": "ND WSI — monopolistic; out of audit scope"}}
   }
 }
