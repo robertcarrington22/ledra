@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "compiled": "2026-08-25",
+    "provenance_policy": "Every value carries provenance: 'sourced' (citation attached) or 'verify' (structural placeholder — must be confirmed against the current bureau/state tables before production use). The engine refuses to silently apply 'verify' values: it applies them and emits a VERIFY finding so no unconfirmed number hides in a worksheet.",
+    "scope": "Workers' compensation premium audit rules. GL audit rules land in v2."
+  },
+  "default_ncci": {
+    "bureau": {"value": "NCCI", "provenance": "sourced", "source": "https://www.ncci.com"},
+    "class_system": {"value": "ncci", "provenance": "sourced"},
+    "ot_premium_excludable": {"value": true, "provenance": "sourced", "source": "NCCI Basic Manual: excess (premium) portion of overtime excludable with per-employee records"},
+    "ot_requires_employee_breakout": {"value": true, "provenance": "sourced", "source": "NCCI Basic Manual record-keeping requirement"},
+    "officer_weekly_min": {"value": null, "provenance": "verify", "note": "State-specific annual table — load per state"},
+    "officer_weekly_max": {"value": null, "provenance": "verify", "note": "State-specific annual table — load per state"},
+    "sole_prop_annual_basis": {"value": null, "provenance": "verify"},
+    "physical_audit_annual_at": {"value": 20000, "provenance": "sourced", "source": "https://www.sfmic.com/assigned-risk/preparing-for-your-premium-audit/ (NCCI assigned-risk: >=20K annual physical)"},
+    "physical_audit_every3yr_between": {"value": [10000, 20000], "provenance": "sourced", "source": "same — physical at least once every 3 years in this band"},
+    "audit_deadline_days": {"value": null, "provenance": "sourced", "note": "No general NCCI deadline; state-specific where set"},
+    "anc_applies": {"value": true, "provenance": "sourced", "source": "NCCI Item B-1429 (eff. 2017), not adopted in AK/TX"},
+    "anc_max_multiplier": {"value": 2.0, "provenance": "sourced", "source": "ANC up to 2x estimated annual premium"},
+    "anc_required_contact_attempts": {"value": 2, "provenance": "sourced", "source": "ANC requires two documented attempts"},
+    "uninsured_sub_full_charge": {"value": true, "provenance": "sourced", "source": "Payments to uninsured subs chargeable as payroll absent valid COI"},
+    "uninsured_sub_materials_fraction": {"value": 0.5, "provenance": "verify", "note": "Labor-portion reduction when materials documented varies by state (commonly 50-90%); confirm per state"},
+    "monopolistic": {"value": false, "provenance": "sourced"}
+  },
+  "states": {
+    "NY": {
+      "bureau": {"value": "NYCIRB", "provenance": "sourced", "source": "https://www.nycirb.org"},
+      "class_system": {"value": "nycirb", "provenance": "sourced"},
+      "officer_weekly_min": {"value": 1700, "provenance": "sourced", "source": "NY 2026 officer minimum $1,700/wk (moved from $1,650)"},
+      "officer_weekly_max": {"value": 3400, "provenance": "sourced", "source": "NY 2026 officer maximum $3,400/wk (moved from $3,300)"},
+      "sole_prop_annual_basis": {"value": 89200, "provenance": "sourced", "source": "NY 2026 sole proprietor/partner flat basis $89,200"},
+      "audit_required_at_premium": {"value": 5000, "provenance": "sourced", "source": "NYCIRB Manual Rule VI: annual audit required at >=$5,000 premium"},
+      "physical_audit_rule": {"value": "first_year_then_every_3", "provenance": "sourced", "source": "NYCIRB Rule VI; RC 2516 permits remote completion of the records examination"},
+      "audit_deadline_days": {"value": 180, "provenance": "sourced", "source": "NY DFS OGC 03-04-12: audits within 180 days of policy expiration"}
+    },
+    "CA": {
+      "bureau": {"value": "WCIRB", "provenance": "sourced", "source": "https://www.wcirb.com"},
+      "class_system": {"value": "wcirb_usrp", "provenance": "sourced", "note": "California classification system differs materially from NCCI"},
+      "physical_audit_annual_at": {"value": 13000, "provenance": "verify", "note": "USRP annual physical-audit threshold — research surfaced both ~$10.5K and $13K; confirm current USRP Part 3 Section VI value before use"},
+      "test_audit_program": {"value": "WCIRB PAAP", "provenance": "sourced", "source": "https://www.wcirb.com/products-and-services/data-reporting/wcirb-premium-audit-accuracy-program", "note": "Worksheets must be re-performable by a WCIRB examiner; insurers fined for vendor error patterns"},
+      "officer_weekly_min": {"value": null, "provenance": "verify"},
+      "officer_weekly_max": {"value": null, "provenance": "verify"}
+    },
+    "PA": {
+      "bureau": {"value": "PCRB", "provenance": "sourced"},
+      "class_system": {"value": "pcrb", "provenance": "sourced"},
+      "ot_premium_excludable": {"value": false, "provenance": "sourced", "source": "PA does not permit the overtime premium-pay exclusion"},
+      "officer_weekly_min": {"value": null, "provenance": "verify"},
+      "officer_weekly_max": {"value": null, "provenance": "verify"}
+    },
+    "DE": {
+      "bureau": {"value": "DCRB", "provenance": "sourced"},
+      "class_system": {"value": "dcrb", "provenance": "sourced"},
+      "ot_premium_excludable": {"value": false, "provenance": "sourced", "source": "DE does not permit the overtime premium-pay exclusion"}
+    },
+    "NJ": {
+      "bureau": {"value": "NJCRIB", "provenance": "sourced"},
+      "class_system": {"value": "njcrib", "provenance": "sourced"},
+      "ot_premium_excludable": {"value": null, "provenance": "verify", "note": "NJ overtime treatment differs from NCCI — confirm against NJCRIB manual before applying any exclusion"}
+    },
+    "TX": {
+      "bureau": {"value": "NCCI", "provenance": "sourced", "note": "NCCI state; non-subscription permitted"},
+      "anc_applies": {"value": false, "provenance": "sourced", "source": "NCCI Item B-1429 not adopted in TX"},
+      "officer_weekly_min": {"value": null, "provenance": "verify"},
+      "officer_weekly_max": {"value": null, "provenance": "verify"}
+    },
+    "WI": {
+      "bureau": {"value": "WCRB-WI", "provenance": "sourced"},
+      "anc_max_multiplier": {"value": 2.0, "provenance": "sourced", "source": "WI applies a flat 2x ANC"}
+    },
+    "FL": {
+      "bureau": {"value": "NCCI", "provenance": "sourced"},
+      "officer_weekly_min": {"value": null, "provenance": "verify"},
+      "officer_weekly_max": {"value": null, "provenance": "verify"}
+    },
+    "OH": {"monopolistic": {"value": true, "provenance": "sourced", "source": "Ohio BWC — private carriers do not write WC; out of audit scope"}},
+    "WA": {"monopolistic": {"value": true, "provenance": "sourced", "source": "WA L&I — monopolistic; out of audit scope"}},
+    "WY": {"monopolistic": {"value": true, "provenance": "sourced"}},
+    "ND": {"monopolistic": {"value": true, "provenance": "sourced"}}
+  }
+}

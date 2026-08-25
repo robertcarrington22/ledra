@@ -1,0 +1,20 @@
+# generated test fixtures and outputs — regenerable from the gen_* scripts
+engine/case_v1/
+engine/extract/docs_v2/
+engine/extract/case_v2/
+engine/extract/case_v21/
+engine/extract/hybrid_docs/
+engine/extract/fuzz_tmp/
+engine/extract/payroll_api/api_fixtures/
+engine/reaudit/book_demo/
+engine/reaudit/results.json
+engine/reaudit/reaudit_report.html
+
+# python
+__pycache__/
+*.pyc
+
+# never commit real client data or PII vaults
+data/
+vault/
+*.vault.json
