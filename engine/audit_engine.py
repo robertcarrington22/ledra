@@ -247,22 +247,37 @@ def audit(case, register, gl, rules):
     for row in gl:
         if row["coi_on_file"] == "N":
             amt, st = float(row["amount"]), row["work_state"]
-            frac = 1.0
-            cite = "full payments chargeable absent COI (sourced)"
             if row["materials_documented"] == "Y":
-                frac, _ = rules.get(st, "uninsured_sub_materials_fraction", 1.0)
-                cite = f"labor-portion fraction {frac} for documented materials (verify per {st})"
+                frac, entry = rules.get(st, "uninsured_sub_materials_fraction", 1.0)
+                if frac is None:
+                    add(f"SUB-REVIEW-{st}", "review", st,
+                        f"GL payment {money(amt)} to {row['payee']} ({row['memo']}) — uninsured sub with documented materials in {st}, which has NO percentage rule (actual remuneration is the basis) — route to reviewer to establish the sub's actual payroll.",
+                        f"gl_cash_disbursements.csv {row['date']}",
+                        f"Reviewer establishes actual remuneration per {st} rules; no fractional shortcut applies.",
+                        0.0, f"{st}: no materials-fraction rule (actual-remuneration basis)", subject=row["payee"])
+                    continue
+                prov = (entry or {}).get("provenance", "?")
+                cite = f"labor-portion fraction {frac} for documented materials ({st} rule, {prov})"
+            else:
+                frac, cite = 1.0, "full subcontract price chargeable absent COI (NCCI Rule 2-H-2, sourced)"
             charge = amt * frac
             add(f"SUB-NOCOI-{st}", "high", st,
                 f"GL payment {money(amt)} to {row['payee']} ({row['memo']}) with NO certificate of insurance — {money(charge)} chargeable as payroll in class {gov_class}.",
                 f"gl_cash_disbursements.csv {row['date']}",
                 "Charge as payroll unless a valid COI covering the work period is produced.",
                 charge * rates[gov_class] / 100, cite, subject=row["payee"])
+            note, _ = rules.get(st, "uninsured_sub_precharge_note")
+            if note:
+                add(f"SUB-PRECHARGE-{st}", "info", st,
+                    f"Pre-charge requirement in {st}: {note}",
+                    "state_rules: uninsured_sub_precharge_note",
+                    "Complete the state's verification/notice steps before billing this charge.",
+                    0.0, f"{st} pre-charge requirement (sourced)", subject=row["payee"])
 
     # ---- check 5: audit type determination + compliance clock ----
     est_annual = case["policy"]["estimated_annual_premium"]
     for st in sorted({e["state"] for e in in_scope}):
-        annual_at, entry = rules.get(st, "physical_audit_annual_at")
+        annual_at, entry = rules.get(st, "physical_audit_annual_at", None, on_date=eff_date)
         if annual_at and est_annual >= annual_at:
             add(f"AUDITTYPE-{st}", "info", st,
                 f"Estimated annual premium {money(est_annual)} meets the {st} physical-audit threshold ({money(annual_at)}) — records examination by an accountable auditor REQUIRED (remote completion permitted where bureau allows).",

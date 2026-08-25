@@ -7,7 +7,8 @@ Seeded conditions the engine must catch (see expected_findings in case.json):
   - 941 wages exceed the register by $12,400 (unrecorded bonus run)
   - PA employee claims OT exclusion WITH proper records -> denied by STATE rule
   - TX employee claims OT exclusion without per-employee breakout -> denied on records
-  - NJ employee claims OT exclusion -> routed to human review (state rule unconfirmed)
+  - NJ employee claims OT exclusion -> DENIED by state rule (NJCRIB Rule 35,
+    confirmed 8/25/2026 — NJ does not permit the OT exclusion)
   - NY officer on a policy effective 2025-02-01 -> BEFORE the earliest known
     NYCIRB vintage (10/1/2025), so the band is unresolved -> routed to review
     (vintage discipline: never apply the wrong policy year's table)
@@ -75,7 +76,7 @@ case = {
         "TRIANGLE-941",
         "OT-STATE-PA-R.Novak",
         "OT-RECORDS-TX-D.Ruiz",
-        "OT-VERIFY-NJ-S.Adeyemi",
+        "OT-STATE-NJ-S.Adeyemi",
         "OFFICER-VERIFY-NY",
         "OFFICER-VERIFY-FL",
         "SUB-NOCOI-NJ",

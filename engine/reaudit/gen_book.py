@@ -4,7 +4,7 @@ Simulates a prospect handing over 50 completed audits from their incumbent
 vendor: for each file, the underlying records (register, GL, 941/SUTA) PLUS
 the vendor's audit decisions. Errors are seeded at roughly the industry rate
 (WCIRB test audits find errors in ~12% of audits): 7 files carry 8 vendor
-errors across five error types; 2 files carry an NJ overtime judgment that
+errors across five error types; 2 files carry a pre-vintage NY officer that
 must route to human review (not be called a vendor error); 41 files are clean
 and must produce ZERO discrepancies — false-positive discipline is the test.
 
@@ -33,7 +33,7 @@ ERROR_PLAN = {
     35: ["missed_uninsured_sub"],             # PA, materials documented (fractional)
     41: ["missed_941_delta", "missed_uninsured_sub"],
 }
-REVIEW_PLAN = {17: "nj_ot_review", 44: "nj_ot_review"}
+REVIEW_PLAN = {17: "pre_vintage_officer_review", 44: "pre_vintage_officer_review"}
 
 def base_file(i):
     name = f"{NAMES[i % len(NAMES)]} {TRADES[i % len(TRADES)][0]} {'Inc' if i % 2 else 'LLC'}"
@@ -99,11 +99,18 @@ for i in range(50):
             # is the missing cap, not a reconciliation delta)
             f["f941_total"] = round(sum(float(x["gross_wages"]) for x in f["register"]), 2)
     if i in REVIEW_PLAN:
-        e = f["register"][-1]
-        e["state"] = "NJ"
-        e["ot_premium_pay"] = f"{rng.uniform(1500, 3200):.2f}"
-        f["vendor"]["ot_exclusions_allowed"].append(e["employee"])
-        f["expected_review"] = [e["employee"]]
+        # NY officer on a policy effective BEFORE the earliest NYCIRB vintage in
+        # the library -> band unresolved -> routed to review, never guessed.
+        # (NJ OT no longer works as a review case: NJCRIB Rule 35 was confirmed
+        # 8/25/2026, so NJ OT exclusions are now hard denials.)
+        f["policy"]["effective_date"] = "2025-05-01"
+        first_word = f["insured"].split()[0]
+        officer = {"employee": f"OFC {first_word}", "state": "NY", "class_code": "8810",
+                   "gross_wages": "52000.00", "ot_premium_pay": "0.00",
+                   "ot_detail_by_employee": "Y", "is_officer": "Y"}
+        f["register"].append(officer)
+        f["f941_total"] = round(sum(float(x["gross_wages"]) for x in f["register"]), 2)
+        f["expected_review"] = [officer["employee"]]
     # clean files also get a properly-insured sub sometimes (must NOT flag)
     if not errors and i % 7 == 0:
         f["gl"].append({"date": "2026-02-10", "payee": f"Insured Sub {i} Inc",

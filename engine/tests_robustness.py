@@ -97,6 +97,15 @@ check("R5 interchange split routes to review", "INTERCHANGE-D.Dual" in ids(f))
 f = run_case([])
 check("R6 empty register flagged", "ZERO-PAYROLL" in ids(f))
 
+# R6b: CA uninsured sub with documented materials -> NO percentage shortcut
+# exists in CA (actual-remuneration basis, LC 2750.5) -> review, not a charge
+f = run_case([emp("W. Coast", "CA", gross=52000.0)],
+             gl=[{"date": "2026-01-10", "payee": "Golden Gate Sub LLC",
+                  "memo": "sub - install w/ materials", "amount": "20000.00",
+                  "coi_on_file": "N", "work_state": "CA", "materials_documented": "Y"}])
+check("R6b CA materials sub routes to review (no fraction rule)", "SUB-REVIEW-CA" in ids(f))
+check("R6b no SUB-NOCOI-CA charge fired", "SUB-NOCOI-CA" not in ids(f))
+
 # R7: clean baseline produces none of the new findings
 f = run_case([emp("C. Clean", "FL", gross=52000.0),
               emp("B. Basic", "TX", gross=48000.0, ot=1200.0, detail="Y")])

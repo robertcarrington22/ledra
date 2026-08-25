@@ -98,7 +98,7 @@ with open(os.path.join(OUT, "ground_truth.json"), "w") as f:
         "expected_ssns_tokenized": 8,
         "expected_findings": [
             "MONO-WA", "TRIANGLE-941",
-            "OT-STATE-PA-R.Novak", "OT-RECORDS-TX-D.Ruiz", "OT-VERIFY-NJ-S.Adeyemi",
+            "OT-STATE-PA-R.Novak", "OT-RECORDS-TX-D.Ruiz", "OT-STATE-NJ-S.Adeyemi",
             "OFFICER-VERIFY-NY", "OFFICER-VERIFY-FL",
             "SUB-NOCOI-NJ", "SUB-NOCOI-PA",
             "AUDITTYPE-FL", "AUDITTYPE-NJ", "AUDITTYPE-NY", "AUDITTYPE-PA", "AUDITTYPE-TX",
