@@ -1,0 +1,206 @@
+<title>Audit House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Archivo:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #0B110E; --bg-2: #0F1712; --surface: #131C16; --surface-2: #18231C;
+  --ink: #E9EEE8; --ink-2: #A8B4AB; --ink-3: #6F7C73;
+  --line: #1F2B23; --line-2: #2A382F;
+  --accent: #3FBE8E; --accent-deep: #1FA378; --accent-dim: #163527;
+  --warn: #E8794D;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 16.5px; line-height: 1.65; margin: 0; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; line-height: 1.08;
+  text-wrap: balance; margin: 0; }
+a { color: var(--accent); text-decoration: none; }
+.mono { font-family: 'Spline Sans Mono', ui-monospace, monospace; }
+.eyebrow { font-family: 'Spline Sans Mono', ui-monospace, monospace; font-size: 11.5px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+
+.banner { background: var(--accent-dim); border-bottom: 1px solid var(--line-2);
+  text-align: center; padding: 9px 16px; font-size: 13.5px; color: var(--ink-2); }
+.banner b { color: var(--accent); font-weight: 500; }
+
+nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+.logo { font-family: 'Fraunces', Georgia, serif; font-size: 21px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.01em; }
+.logo em { font-style: italic; font-weight: 400; color: var(--accent); }
+.nav-links { display: flex; gap: 28px; align-items: center; font-size: 14px; }
+.nav-links a { color: var(--ink-2); }
+.nav-links a:hover { color: var(--ink); }
+.btn { display: inline-block; background: var(--accent); color: #06110C; font-weight: 600;
+  font-size: 14.5px; padding: 11px 22px; border-radius: 8px; transition: background 0.15s; }
+.btn:hover { background: var(--accent-deep); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
+.btn.ghost:hover { border-color: var(--ink-3); background: var(--surface); }
+@media (max-width: 720px) { .nav-links a:not(.btn) { display: none; } }
+
+.hero { padding: 96px 0 84px; text-align: center; border-bottom: 1px solid var(--line);
+  background: radial-gradient(ellipse 80% 55% at 50% -5%, #14251B 0%, var(--bg) 62%); }
+.hero h1 { font-size: clamp(42px, 6.6vw, 76px); font-weight: 600; letter-spacing: -0.015em;
+  max-width: 21ch; margin: 22px auto 24px; }
+.hero p { font-size: 19px; color: var(--ink-2); max-width: 52ch; margin: 0 auto 36px; }
+.hero .ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+.strip { padding: 74px 0 66px; border-bottom: 1px solid var(--line); }
+.strip h2 { font-size: clamp(28px, 4vw, 40px); text-align: center; max-width: 26ch; margin: 0 auto 14px; }
+.strip .sub { text-align: center; color: var(--ink-2); max-width: 58ch; margin: 0 auto 44px; font-size: 16px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 760px) { .stats { grid-template-columns: 1fr; } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 30px 28px 26px; }
+.stat .n { font-family: 'Fraunces', Georgia, serif; font-size: 52px; font-weight: 500;
+  line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .l { color: var(--ink-2); font-size: 14px; margin-top: 12px; line-height: 1.55; }
+.stat .src { color: var(--ink-3); font-size: 12px; margin-top: 10px; }
+
+.why { padding: 84px 0 70px; border-bottom: 1px solid var(--line); }
+.why h2 { font-size: clamp(28px, 4vw, 42px); max-width: 22ch; margin-bottom: 48px; }
+.props { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 820px) { .props { grid-template-columns: 1fr; } }
+.prop { background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 28px 28px 24px; transition: border-color 0.15s; }
+.prop:hover { border-color: var(--line-2); }
+.prop.wide { grid-column: 1 / -1; }
+.prop h3 { font-size: 20px; margin-bottom: 10px; }
+.prop p { color: var(--ink-2); font-size: 14.5px; margin: 0; }
+.prop .tag { font-family: 'Spline Sans Mono', ui-monospace, monospace; font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); display: block;
+  margin-bottom: 12px; }
+
+.numbers { padding: 80px 0 70px; border-bottom: 1px solid var(--line); text-align: center; }
+.numbers h2 { font-size: clamp(26px, 3.6vw, 38px); margin-bottom: 46px; }
+.numrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 720px) { .numrow { grid-template-columns: 1fr; } }
+.num-item .n { font-family: 'Fraunces', Georgia, serif; font-size: clamp(44px, 6vw, 68px);
+  font-weight: 500; line-height: 1; color: var(--accent); }
+.num-item .l { color: var(--ink-2); font-size: 14.5px; margin-top: 12px; max-width: 30ch;
+  margin-left: auto; margin-right: auto; }
+
+.security { padding: 80px 0 74px; border-bottom: 1px solid var(--line); }
+.security h2 { font-size: clamp(26px, 3.6vw, 38px); text-align: center; margin-bottom: 12px; }
+.security .sub { text-align: center; color: var(--ink-2); max-width: 60ch; margin: 0 auto 40px; font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.chipx { background: var(--surface); border: 1px solid var(--line-2); border-radius: 100px;
+  padding: 10px 22px; font-family: 'Spline Sans Mono', ui-monospace, monospace; font-size: 12.5px;
+  letter-spacing: 0.05em; color: var(--ink-2); }
+
+.cta-final { padding: 100px 0 96px; text-align: center;
+  background: radial-gradient(ellipse 70% 60% at 50% 110%, #14251B 0%, var(--bg) 65%); }
+.cta-final h2 { font-size: clamp(34px, 5.4vw, 58px); max-width: 18ch; margin: 0 auto 20px; }
+.cta-final p { color: var(--ink-2); max-width: 52ch; margin: 0 auto 34px; font-size: 17px; }
+
+footer { border-top: 1px solid var(--line); padding: 30px 0 50px; font-size: 13px;
+  color: var(--ink-3); }
+.foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+</style>
+
+<div class="banner">Now onboarding design partners — <b>the first 50-file re-audit is free</b>, and the findings are yours either way.</div>
+
+<div class="wrap">
+<nav>
+  <span class="logo">Audit <em>House</em></span>
+  <div class="nav-links">
+    <a href="#why">Why Audit House</a>
+    <a href="#method">Method</a>
+    <a href="#security">Security</a>
+    <a class="btn" href="mailto:robertcarrington22@gmail.com?subject=Re-audit%20request">Request re-audit</a>
+  </div>
+</nav>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">The AI-native premium audit bureau</span>
+    <h1>For carriers who refuse to leave premium on the table</h1>
+    <p>Audit House is the audit partner for workers' comp carriers, MGAs, and state funds — completed audits in days, not months, with an error rate you can measure and a human signature on every file.</p>
+    <div class="ctas">
+      <a class="btn" href="mailto:robertcarrington22@gmail.com?subject=Re-audit%20request">Request the free 50-file re-audit</a>
+      <a class="btn ghost" href="#method">See the method</a>
+    </div>
+  </div>
+</header>
+
+<section class="strip reveal" id="problem">
+  <div class="wrap">
+    <h2>The audit function is running out of auditors</h2>
+    <p class="sub">Premium audit is legally mandated on nearly every policy you write — and the workforce that does it is retiring faster than it can be replaced, while the incumbent vendor model runs on turnaround times measured in months.</p>
+    <div class="stats">
+      <div class="stat"><div class="n" style="color:var(--warn)">12%</div><div class="l">of completed audits contain errors — found by the rating bureau's own test-audit program, with fines landing on the carrier.</div><div class="src">WCIRB test-audit sample</div></div>
+      <div class="stat"><div class="n" style="color:var(--warn)">400K</div><div class="l">US insurance professionals exiting the workforce by the end of 2026 — and the audit bench is among the oldest in the industry.</div><div class="src">Industry workforce studies</div></div>
+      <div class="stat"><div class="n" style="color:var(--warn)">2×</div><div class="l">premium — the noncompliance charge when insureds ghost the audit. Response rates are a revenue problem, not a paperwork problem.</div><div class="src">NCCI Item B-1429</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="why reveal" id="why">
+  <div class="wrap">
+    <h2>Why carriers choose Audit House</h2>
+    <div class="props">
+      <div class="prop"><span class="tag">By auditors, for auditors</span><h3>A human signs every file</h3><p>Credentialed premium auditors review and sign every audit before it ships. AI does the reconciliation and drafting; accountable professionals own the judgment and the signature — because that's what survives a dispute.</p></div>
+      <div class="prop"><span class="tag">Agents that reconcile — and prove it</span><h3>Three-way reconciliation on every file</h3><p>Every payroll register is machine-reconciled against the Form 941 and the state unemployment wage report, and every classification decision ships with the governing manual citation. Unrecorded compensation has nowhere to hide.</p></div>
+      <div class="prop"><span class="tag">Meets records where they live</span><h3>Payroll connect or any document</h3><p>Insureds connect their payroll system in minutes — or send whatever they actually have: ADP exports, QuickBooks summaries, faxed 941s. No behavior change, no portal training, no chase cycle measured in weeks.</p></div>
+      <div class="prop"><span class="tag">Examiner-grade worksheets</span><h3>Built to be re-performed</h3><p>State rules are resolved to the policy effective date — the right year's officer tables, the right state's overtime treatment, every time. Worksheets are built to survive a bureau test audit, because your grade depends on our work.</p></div>
+      <div class="prop wide"><span class="tag">Priced per audit, deployed white-glove</span><h3>No software to buy. Nothing to integrate.</h3><p>Completed audits arrive in your existing vendor intake format, priced per file against the budget line you already have — with a live status portal so nothing disappears into a queue. Start with the small-account tier your team is happiest to hand off; keep your staff on the complex accounts where their judgment matters most.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="numbers reveal" id="method">
+  <div class="wrap">
+    <h2>Every file, by design</h2>
+    <div class="numrow">
+      <div class="num-item"><div class="n">3×</div><div class="l">every audit reconciled three ways — register, 941, state wage report</div></div>
+      <div class="num-item"><div class="n">100%</div><div class="l">of audits reviewed and signed by a credentialed human auditor</div></div>
+      <div class="num-item"><div class="n num">50</div><div class="l">states of rules, resolved per state and per policy year — never the wrong table</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="security reveal" id="security">
+  <div class="wrap">
+    <h2>Built for carrier procurement, secure by design</h2>
+    <p class="sub">Your insureds' payroll data is the most sensitive thing we touch — so the architecture starts there. Social Security numbers are tokenized at ingestion and never reach an AI model; processing runs under zero-retention terms on US soil.</p>
+    <div class="chips">
+      <span class="chipx">SSN tokenization at ingestion</span>
+      <span class="chipx">Zero-retention AI processing</span>
+      <span class="chipx">US-only data residency</span>
+      <span class="chipx">SOC 2 Type II program underway</span>
+      <span class="chipx">NAIC data security &amp; 23 NYCRR 500 aligned</span>
+      <span class="chipx">E&amp;O + cyber insured</span>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final reveal">
+  <div class="wrap">
+    <h2>See what your current vendor missed</h2>
+    <p>Send us 50 completed audits. We re-audit every file and return a discrepancy report — each finding cited to the governing rule, with the dollar impact. Free, and the findings are yours whether or not we ever work together.</p>
+    <a class="btn" href="mailto:robertcarrington22@gmail.com?subject=Re-audit%20request">Request the free 50-file re-audit</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span><span class="logo" style="font-size:16px">Audit <em>House</em></span> · New York</span>
+    <span>robertcarrington22@gmail.com · © 2026 Audit House · design-partner preview</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+})();
+</script>
