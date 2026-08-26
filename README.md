@@ -1,6 +1,6 @@
-# Audit House
+# Ledra
 
-**An AI-native premium audit bureau — from market whitespace to working, tested
+**Ledra (formerly Audit House) — an AI-native premium audit bureau — from market whitespace to working, tested
 product in one day, built by directing an agentic AI workflow.**
 
 Workers' compensation premium audit is a legally mandated, multi-million-unit

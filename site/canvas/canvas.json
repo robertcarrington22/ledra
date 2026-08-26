@@ -1,13 +1,51 @@
 {
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1200, "h": 3720 },
-    { "file": "HeroAttest.dc.html", "x": 1290, "y": 0, "w": 1200, "h": 720 },
-    { "file": "HeroCerta.dc.html", "x": 1290, "y": 810, "w": 1200, "h": 720 },
-    { "file": "HeroProof.dc.html", "x": 1290, "y": 1620, "w": 1200, "h": 720 }
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1200,
+      "h": 3720
+    },
+    {
+      "file": "HeroAttest.dc.html",
+      "x": 1290,
+      "y": 0,
+      "w": 1200,
+      "h": 720
+    },
+    {
+      "file": "HeroCerta.dc.html",
+      "x": 1290,
+      "y": 810,
+      "w": 1200,
+      "h": 720
+    },
+    {
+      "file": "HeroProof.dc.html",
+      "x": 1290,
+      "y": 1620,
+      "w": 1200,
+      "h": 720
+    }
   ],
   "annotations": [
-    { "id": "naming-note", "x": 0, "y": -170, "w": 560, "text": "DECISION (Aug 25): the name is Pruva (coined, prove-root).\nPROVISIONAL until the Pruva knockout sweep completes — key check in flight: distance from Prudential's PRU-family marks in insurance. Do not buy domains or announce until cleared. pruva.com and pruva.ai looked open at DNS level; registrar check needed.\nRetired candidates: Numera (10+ active users incl. TX accounting firm), Certa (blocked — live CERTA marks, Gartner-ranked SaaS), Probo (blocked — YC audit-compliance twin on probo.com), Attest, Proof." },
-    { "id": "direction-note", "x": 1290, "y": -170, "w": 560, "text": "Three mono directions (no green anywhere):\nAttest — pure-black theatre, serif at 84px, centered. Most Rogo-like; risk: austere.\nCerta — light institutional, split hero with a worksheet card (evidence-forward). Warmest; risk: quiet.\nProof — high-contrast editorial, uppercase grotesk, ruled bands. Most memorable; risk: fashion-forward for carrier buyers.\nMain page runs the dark treatment under Numera — mix any name onto any direction." }
+    {
+      "id": "naming-note",
+      "x": 0,
+      "y": -170,
+      "w": 560,
+      "text": "DECISION (Aug 25): the name is LEDRA \u2014 first of five candidates to clear the knockout sweep (no live US LEDRA marks in classes 35/36/42; nobody in insurance/audit uses it). Cautions on record: three small software Ledras in other verticals, ledra.com is a GoDaddy buy-it listing, Ledger Investing is a positioning neighbor in WC risk capital. Next steps: attorney clearance + price ledra.com.\nRetired: Numera, Certa, Probo, Pruva (all blocked \u2014 see repo history)."
+    },
+    {
+      "id": "direction-note",
+      "x": 1290,
+      "y": -170,
+      "w": 560,
+      "text": "Three mono directions (no green anywhere):\nAttest \u00e2\u20ac\u201d pure-black theatre, serif at 84px, centered. Most Rogo-like; risk: austere.\nCerta \u00e2\u20ac\u201d light institutional, split hero with a worksheet card (evidence-forward). Warmest; risk: quiet.\nProof \u00e2\u20ac\u201d high-contrast editorial, uppercase grotesk, ruled bands. Most memorable; risk: fashion-forward for carrier buyers.\nMain page runs the dark treatment under Numera \u00e2\u20ac\u201d mix any name onto any direction."
+    }
   ],
-  "launch": { "view": "canvas" }
+  "launch": {
+    "view": "canvas"
+  }
 }

@@ -2,7 +2,7 @@
 
 The report a VP of Premium Audit receives after the free 50-file re-audit:
 headline numbers, every discrepancy with its rule citation and dollar impact,
-the review queue, and the methodology. Design language matches the Audit House
+the review queue, and the methodology. Design language matches the Ledra
 dossier. The demo build is clearly labeled synthetic.
 """
 import json, os
@@ -98,10 +98,10 @@ footer {{ border-top:1px solid var(--line2); margin-top:56px; padding-top:20px; 
 </style>
 <div class="wrap">
 <header class="top">
-  <div class="rule-top"><span class="eyebrow">Audit House · re-audit findings</span>
+  <div class="rule-top"><span class="eyebrow">Ledra · re-audit findings</span>
   <span class="eyebrow">Run {S["run_date"]}</span></div>
   <h1>50-file <em>re-audit</em></h1>
-  <p class="dek">{S["prospect"]}. Every file re-audited by the Audit House engine against the underlying
+  <p class="dek">{S["prospect"]}. Every file re-audited by the Ledra engine against the underlying
   payroll records, 941/SUTA reconciliation, and general ledger — each discrepancy cited to the governing
   rule with its premium impact.</p>
   <div class="demo">SYNTHETIC DEMONSTRATION — this run uses a fictional, seeded book to demonstrate the
@@ -130,7 +130,7 @@ for uninsured subcontractor payments. A discrepancy is reported only where the e
 vendor's decision disagree; {S["files"] - S["files_with_vendor_errors"] - S["review_queue_files"]} clean
 files produced zero flags. Every finding above carries the rule citation an examiner would need to
 re-perform it.</p>
-<footer><span>Audit House · the re-audit is free; the findings are yours either way</span>
+<footer><span>Ledra · the re-audit is free; the findings are yours either way</span>
 <span>engine v1.1 · {S["files"]} files · self-tests: {"all passing" if S["all_self_tests_pass"] else "FAILING"}</span></footer>
 </div>
 """
