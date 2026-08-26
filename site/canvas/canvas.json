@@ -1,6 +1,6 @@
 {
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1200, "h": 3180 },
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1200, "h": 3680 },
     { "file": "HeroAttest.dc.html", "x": 1290, "y": 0, "w": 1200, "h": 720 },
     { "file": "HeroCerta.dc.html", "x": 1290, "y": 810, "w": 1200, "h": 720 },
     { "file": "HeroProof.dc.html", "x": 1290, "y": 1620, "w": 1200, "h": 720 }
